@@ -6,26 +6,31 @@ use App\Models\BlogCategory;
 use Illuminate\Support\Str;
 use App\Http\Requests\BlogCategoryUpdateRequest;
 use App\Http\Requests\BlogCategoryCreateRequest;
- use Illuminate\Http\Request;
+use App\Repositories\BlogCategoryRepository;
 
 class CategoryController extends BaseController
 {
+    public function __construct(private BlogCategoryRepository $blogCategoryRepository)
+    {
+        parent::__construct();
+    }
+
     public function index()
     {
-        $paginator = BlogCategory::paginate(5);
+        $paginator = $this->blogCategoryRepository->getAllWithPaginate(5);
 
         return $paginator;
     }
 
     public function store(BlogCategoryCreateRequest $request)
     {
-        $data = $request->input(); // отримаємо масив даних, які надійшли з форми
+        $data = $request->input();
 
-        if (empty($data['slug'])) { // якщо псевдонім порожній
-            $data['slug'] = Str::slug($data['title']); // генеруємо псевдонім
+        if (empty($data['slug'])) {
+            $data['slug'] = Str::slug($data['title']);
         }
 
-        $item = (new BlogCategory())->create($data); // створюємо об'єкт і додаємо в БД
+        $item = (new BlogCategory())->create($data);
 
         if ($item) {
             return [
@@ -39,12 +44,12 @@ class CategoryController extends BaseController
 
     public function show(string $id)
     {
-         dd(__METHOD__);
+        //
     }
 
     public function update(BlogCategoryUpdateRequest $request, string $id)
     {
-        $item = BlogCategory::find($id);
+        $item = $this->blogCategoryRepository->getEdit($id);
 
         if (empty($item)) {
             return ['message' => "Запис id=[{$id}] не знайдено"];
@@ -70,6 +75,6 @@ class CategoryController extends BaseController
 
     public function destroy(string $id)
     {
-         dd(__METHOD__);
+        //
     }
 }
