@@ -11,6 +11,8 @@ class BlogPost extends Model
     use SoftDeletes;
     use HasFactory;
 
+    const UNKNOWN_USER = 1;
+
     protected $fillable = [
         'title',
         'slug',
@@ -19,26 +21,16 @@ class BlogPost extends Model
         'content_raw',
         'is_published',
         'published_at',
-        'user_id',
+        // 'user_id' видалено
     ];
 
-    /**
-     * Категорія статті
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function category()
     {
-        // стаття належить категорії
         return $this->belongsTo(BlogCategory::class);
     }
 
-    /**
-     * Автор статті
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function user()
     {
-        // стаття належить користувачу
         return $this->belongsTo(User::class);
     }
 }
