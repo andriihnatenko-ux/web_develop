@@ -7,10 +7,14 @@ use App\Repositories\BlogCategoryRepository;
 use App\Http\Requests\BlogPostUpdateRequest;
 use App\Http\Requests\BlogPostCreateRequest;
 use App\Models\BlogPost;
-use Illuminate\Http\Request;
+use App\Jobs\BlogPostAfterCreateJob;
+use App\Jobs\BlogPostAfterDeleteJob;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class PostController extends BaseController
 {
+    use DispatchesJobs;
+
     public function __construct(
         private BlogPostRepository $blogPostRepository,
         private BlogCategoryRepository $blogCategoryRepository
@@ -31,6 +35,9 @@ class PostController extends BaseController
         $item = (new BlogPost())->create($data);
 
         if ($item) {
+            $job = new BlogPostAfterCreateJob($item);
+            $this->dispatch($job);
+
             return ['success' => true, 'message' => 'Успішно збережено'];
         } else {
             return ['message' => 'Помилка збереження'];
@@ -58,9 +65,11 @@ class PostController extends BaseController
 
     public function destroy(string $id)
     {
-        $result = BlogPost::destroy($id); // софт деліт, запис лишається
+        $result = BlogPost::destroy($id);
 
         if ($result) {
+            BlogPostAfterDeleteJob::dispatch($id)->delay(20);
+
             return ['success' => true, 'message' => 'Запис успішно видалено'];
         } else {
             return ['message' => 'Помилка видалення'];
