@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\Blog\Admin;
 
 use App\Models\BlogCategory;
-use Illuminate\Support\Str;
 use App\Http\Requests\BlogCategoryUpdateRequest;
 use App\Http\Requests\BlogCategoryCreateRequest;
 use App\Repositories\BlogCategoryRepository;
@@ -18,7 +17,6 @@ class CategoryController extends BaseController
     public function index()
     {
         $paginator = $this->blogCategoryRepository->getAllWithPaginate(5);
-
         return $paginator;
     }
 
@@ -26,9 +24,7 @@ class CategoryController extends BaseController
     {
         $data = $request->input();
 
-        if (empty($data['slug'])) {
-            $data['slug'] = Str::slug($data['title']);
-        }
+        // Логіку для slug перенесено в Observer
 
         $item = (new BlogCategory())->create($data);
 
@@ -57,9 +53,7 @@ class CategoryController extends BaseController
 
         $data = $request->all();
 
-        if (empty($data['slug'])) {
-            $data['slug'] = Str::slug($data['title']);
-        }
+        // Логіку для slug перенесено в Observer
 
         $result = $item->update($data);
 
