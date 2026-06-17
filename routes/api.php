@@ -26,8 +26,7 @@ Route::group($groupData, function () {
         ->only($methods)
         ->names('blog.admin.categories');
 
-    // BlogPost
+    // BlogPost (видалили рядок except(['show']), щоб метод show з 16 лаби запрацював)
     Route::apiResource('posts', AdminPostController::class)
-        ->except(['show'])                               // не робити маршрут для метода show
         ->names('blog.admin.posts');
 });

@@ -1,59 +1,47 @@
 <?php
 
-namespace App\Http\Controllers\Api\Blog\Admin;
+namespace App\Http\Controllers\Api\Blog;
 
-use App\Repositories\BlogPostRepository;
-use App\Repositories\BlogCategoryRepository;
-use App\Http\Requests\BlogPostUpdateRequest;
-use Illuminate\Support\Str;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\BlogPost;
+use App\Http\Resources\Api\Blog\Admin\PostResource;
 
-class PostController extends BaseController
-{
-    public function __construct(
-        private BlogPostRepository $blogPostRepository,
-        private BlogCategoryRepository $blogCategoryRepository
-    ) {
-        parent::__construct();
-    }
+class PostController extends BaseController{
 
     public function index()
     {
-        $paginator = $this->blogPostRepository->getAllWithPaginate();
-        return $paginator;
+        $items = BlogPost::all();
+
+
+        return $items;
     }
+
 
     public function store(Request $request)
     {
         //
     }
 
-    public function update(BlogPostUpdateRequest $request, string $id)
+
+    public function show(string $id)
     {
-        $item = $this->blogPostRepository->getEdit($id);
+        $item = BlogPost::where('is_published', true)->findOrFail($id);
 
-        if (empty($item)) {
-            return ['message' => "Запис id=[{$id}] не знайдено"];
-        }
-
-        $data = $request->all();
-
-        // Логіку для slug та published_at перенесено в Observer
-
-        $result = $item->update($data);
-
-        if ($result) {
-            return [
-                'success' => true,
-                'message' => 'Успішно збережено'
-            ];
-        } else {
-            return ['message' => 'Помилка збереження'];
-        }
+        return new PostResource($item);
     }
 
-    public function destroy(string $id)
+
+    public function update(Request $request, string $id)
     {
         //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+
     }
 }

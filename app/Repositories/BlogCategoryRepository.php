@@ -25,8 +25,9 @@ class BlogCategoryRepository extends CoreRepository
         ]);
 
         $result = $this
-            ->startConditions()
+        ->startConditions()
             ->selectRaw($columns)
+            ->with(['parentCategory:id,title',])
             ->toBase()
             ->get();
 

@@ -2,29 +2,35 @@
 
 namespace App\Http\Controllers\Api\Blog\Admin;
 
+//use App\Http\Controllers\Controller;
+use App\Http\Resources\Api\Blog\Admin\CategoryResource;
 use App\Models\BlogCategory;
+use Illuminate\Support\Str;
 use App\Http\Requests\BlogCategoryUpdateRequest;
 use App\Http\Requests\BlogCategoryCreateRequest;
 use App\Repositories\BlogCategoryRepository;
 
-class CategoryController extends BaseController
-{
+
+
+class CategoryController extends BaseController{
+
     public function __construct(private BlogCategoryRepository $blogCategoryRepository)
     {
-        parent::__construct();
-    }
+        //parent::__construct();
 
+    }
     public function index()
     {
-        $paginator = $this->blogCategoryRepository->getAllWithPaginate(5);
-        return $paginator;
+        $paginator = $this->blogCategoryRepository->getAllWithPaginate();
+
+        return CategoryResource::collection($paginator);
     }
+
 
     public function store(BlogCategoryCreateRequest $request)
     {
         $data = $request->input();
 
-        // Логіку для slug перенесено в Observer
 
         $item = (new BlogCategory())->create($data);
 
@@ -38,22 +44,26 @@ class CategoryController extends BaseController
         }
     }
 
+
     public function show(string $id)
     {
-        //
+        $item = \App\Models\BlogCategory::findOrFail($id);
+        return new \App\Http\Resources\Api\Blog\Admin\CategoryResource($item);
     }
 
-    public function update(BlogCategoryUpdateRequest $request, string $id)
-    {
-        $item = $this->blogCategoryRepository->getEdit($id);
 
+    public function update(BlogCategoryUpdateRequest $request, $id)
+    {
+        //dd(__METHOD__);
+        $item = $this->blogCategoryRepository->getEdit($id);
         if (empty($item)) {
             return ['message' => "Запис id=[{$id}] не знайдено"];
         }
 
         $data = $request->all();
-
-        // Логіку для slug перенесено в Observer
+        if (empty($data['slug'])) {
+            $data['slug'] = Str::slug($data['title']);
+        }
 
         $result = $item->update($data);
 
@@ -67,8 +77,26 @@ class CategoryController extends BaseController
         }
     }
 
+    /**
+     * Remove the specified resource from storage.
+     */
     public function destroy(string $id)
     {
-        //
+        $item = BlogCategory::find($id);
+
+        if (empty($item)) {
+            return response()->json(['message' => "Запис id=[{$id}] не знайдено"], 404);
+        }
+
+        $result = $item->delete();
+
+        if ($result) {
+            return [
+                'success' => true,
+                'message' => 'Успішно видалено'
+            ];
+        } else {
+            return response()->json(['message' => 'Помилка видалення'], 500);
+        }
     }
 }

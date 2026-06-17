@@ -1,6 +1,12 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  devtools: { enabled: true },
-  modules: ['@nuxt/ui'],
-  compatibilityDate: '2024-11-01',
+    modules: ['@nuxt/ui'],
+
+    // Додаємо глобальну змінну для API
+    runtimeConfig: {
+        public: {
+            apiBase: 'http://localhost/api/admin/blog' // Твій бекенд працює без порту 8000
+        }
+    },
+
+    compatibilityDate: '2025-01-01',
 })

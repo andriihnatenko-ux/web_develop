@@ -1,16 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Api\Blog\Admin;
+namespace App\Http\Controllers\Api\Blog;
 
-use App\Http\Controllers\Api\Blog\BaseController as GuestBaseController;
+use App\Http\Controllers\Controller;
 
-abstract class BaseController extends GuestBaseController
+abstract class BaseController extends Controller
 {
-    /**
-     * BaseController constructor
-     */
-    public function __construct()
-    {
-        // Ініціалізація загальних елементів адмінки
-    }
+    // Це базовий контролер для всього API блогу
 }
